@@ -96,7 +96,7 @@ H0: τi = Y0i − Y1i = 0
 
 ```{r}
 A_tilde_1 <- Abold[, 1]
-T_sharp <- mean(Y_obs[A_tilde == 1]) - mean(Y_obs[A_tilde == 0])
+T_sharp <- mean(Y_obs[A_tilde_1 == 1]) - mean(Y_obs[A_tilde_1 == 0])
 T_sharp
 ```
 
