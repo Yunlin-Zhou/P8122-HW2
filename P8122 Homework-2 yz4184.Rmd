@@ -97,7 +97,7 @@ There are `r ncol(Abold)` possibilities for A.
 
 Sharp null hypothesis: For each individual observation, there is no treatment effect.
 
-H0: τi = Y0i − Y1i = 0
+H0:Ti = Yi1-Yi0
 
 ```{r}
 A_tilde_1 <- Abold[, 1]
