@@ -28,7 +28,7 @@ data = read.csv("./light.csv") %>%
 
 * LL =bright
 
-From the plots below we can conclude that, the light group is tending to gain most weight; the dark group is tending to gain the least weight.
+From the plots below we can conclude that, the bright group is tending to gain the most weight; the dark group is tending to gain the least weight.
 
 ```{r}
 data %>% 
@@ -79,6 +79,9 @@ T_obs = mean(Y_obs[A == "LL"]) - mean(Y_obs[A == "LD"])
 T_obs
 ```
 
+The difference in means between the 2 treatment groups is `r T_obs`.
+
+
 ### 5. (10 points) How many different possibilities are there for A? Enumerate all of these possibilities ina matrix. (Hint: it’s probably easiest to first install the ri or perm package, have a look at the function choose Matrix in R, it may come in handy.)
 
 ```{r}
@@ -86,6 +89,8 @@ Abold = chooseMatrix(17, 9)
 Abold = t(Abold)
 ncol(Abold)
 ```
+
+There are `r ncol(Abold)` possibilities for A.
 
 
 ### 6. (15 points) State the sharp null hypothesis of no difference. Calculate the test statistic under one of these possibilities for A (the first one), under the sharp null hypothesis.
@@ -99,6 +104,8 @@ A_tilde_1 <- Abold[, 1]
 T_sharp <- mean(Y_obs[A_tilde_1 == 1]) - mean(Y_obs[A_tilde_1 == 0])
 T_sharp
 ```
+
+The t-statistic under the sharp null hypothesis is `r T_sharp`.
 
 
 ### 7. (10 points) Generate the exact randomization distribution for T, under the sharp null hypothesis of no difference.
@@ -128,5 +135,9 @@ pval <- mean(rdist >= T_obs)
 pval
 ```
 
+The exact p-value based on this distribution is `r pval`.
+
+
 ### 10. (10 points) What do you conclude?
 
+The p-value is `r pval`, which is less than 0.05. So we rejected the null hypothesis that for each individual observation, there is no treatment effect. And we conclude that there is sufficient evidence to say that the light at night played a causal role in the obesity epidemic.
