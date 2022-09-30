@@ -1,0 +1,132 @@
+---
+title: "P8122 Homework-2 yz4184"
+author: "Yunlin Zhou"
+date: '2022-09-30'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(ri)
+library(perm)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+data = read.csv("./light.csv") %>% 
+  janitor::clean_names()
+```
+
+### 1. (5 points) We are interested in the causal effect of light at night on weight gain. Plot the outcome by treatment group.
+
+* DM= dim
+
+* LD =dark
+
+* LL =bright
+
+From the plots below we can conclude that, the light group is tending to gain most weight; the dark group is tending to gain the least weight.
+
+```{r}
+data %>% 
+  ggplot(aes(x = light, y = bm_gain, fill = light)) +
+  geom_boxplot(alpha = 0.7)
+
+data %>% 
+  ggplot(aes(x = bm_gain, fill = light)) + geom_histogram()+facet_grid(. ~ light)
+```
+
+### 2. (5 points) Here we will compare the mice exposed to darkness to the mice exposed to bright light overnight (once you have the code it is easy to rerun the analysis for the dim light group, if you are interested). Subset the data to only consider these two groups.
+
+```{r}
+dark_df = data %>% 
+  filter(light %in% c("LD"))
+
+bright_df = data %>% 
+  filter(light %in% c("LL"))
+
+dim_df = data %>% 
+  filter(light %in% c("DM"))
+
+bright_dark_df = data %>% 
+  filter(light %in% c("LD", "LL"))
+```
+
+
+### 3. (15 points) Set up the data such that everything you will need has generic names (such as Yobs or whatever you want to call them). Everything specific to the context of your data (variable names, sample sizes) should only be in your R Script here. Everything else should be generic so you can copy/paste it for later use. What quantities will you need to evaluate the causal effect of light at night on weight gain?
+
+```{r}
+bright_dark_df = bright_dark_df  %>%
+  select(bm_gain, light, everything())%>%
+  rename( Y_obs = bm_gain,
+          A = light)
+```
+
+```{r}
+Y_obs = bright_dark_df$Y_obs
+A = bright_dark_df$A
+A = as.factor(A)
+```
+
+
+### 4. (10 points) Suppose we want the statistic to be the difference in means between the two treatment groups. Calculate Tobs.
+
+```{r}
+T_obs = mean(Y_obs[A == "LL"]) - mean(Y_obs[A == "LD"])
+T_obs
+```
+
+### 5. (10 points) How many different possibilities are there for A? Enumerate all of these possibilities ina matrix. (Hint: it’s probably easiest to first install the ri or perm package, have a look at the function choose Matrix in R, it may come in handy.)
+
+```{r}
+Abold = chooseMatrix(17, 9)
+Abold = t(Abold)
+ncol(Abold)
+```
+
+
+### 6. (15 points) State the sharp null hypothesis of no difference. Calculate the test statistic under one of these possibilities for A (the first one), under the sharp null hypothesis.
+
+Sharp null hypothesis: For each individual observation, there is no treatment effect.
+
+H0: τi = Y0i − Y1i = 0
+
+```{r}
+A_tilde_1 <- Abold[, 1]
+T_sharp <- mean(Y_obs[A_tilde == 1]) - mean(Y_obs[A_tilde == 0])
+T_sharp
+```
+
+
+### 7. (10 points) Generate the exact randomization distribution for T, under the sharp null hypothesis of no difference.
+
+```{r}
+rdist <- rep(NA, times = ncol(Abold))
+for (i in 1:ncol(Abold)) {
+  A_tilde <- Abold[, i]
+  rdist[i] <- mean(Y_obs[A_tilde == 1]) - mean(Y_obs[A_tilde == 0])
+}
+
+head(rdist)
+```
+
+### 8. (10 points) Plot this distribution, and mark the observed test statistic.
+
+```{r}
+hist(rdist)
+abline(v = T_obs,col="red")
+```
+
+
+### 9. (10 points) Calculate the exact p-value, based on this distribution.
+
+```{r}
+pval <- mean(rdist >= T_obs)
+pval
+```
+
+### 10. (10 points) What do you conclude?
+
